@@ -9,12 +9,14 @@ This provides an exploit primitive that can be used for attacking services like 
 
 This is done by responding to SSDP multicast discovery requests, which Windows systems send out automatically and at regular intervals. These requests ask for a URL to learn more about available shared devices on a LAN. Windows will ignore the host portion of any advertised URL, connecting only to the host who provided the advertisement. However, a malicious host can reply to that connection with an HTTP 301 redirect. Windows will process the redirection completely, accepting any arbitrary host (including 127.0.0.1) and URL path.
 
+![diagram](ssrf-diagram.jpg)
+
 While this write-up is specific to the vulnerable SSDP service in Windows, it is likely that many other applications using their own SSDP stack are vulnerable as well.
 
-Exploit POC code available in the GitLab repository [here](https://gitlab.com/initstring/swicheroo).
+Exploit POC code is available in the GitLab repository [here](https://gitlab.com/initstring/swicheroo).
 
 ## Vulnerable Windows OS Versions
-The vulnerability has was tested on the following versions of Windows, all of which are vulnerable:
+The exploit POC was tested on the following versions of Windows, all of which were vulnerable:
 - Windows 10 Enterprise Insider Preview v1903 (build 18932.1000)
 - Windows 10 Enterprise v1903 (build 18362.30)
 - Windows Server 2016 Standard v1607 (build 14393.693)
@@ -58,11 +60,10 @@ Once the Windows system receives this reply, it will then initiate an HTTP GET r
 ## Abusing SSDP for SSRF
 While the example above provides an IP address (192.168.1.214), Windows will completely ignore that. For example, if the `LOCATION` header specified `http://127.0.0.1/device.xml`, Windows would pay attention only to the `/device.xml` and perform an HTTP GET to that URL on the remote host that responded to the discovery request. This is a way to prevent SSRF.
 
-However, if that remote host were to respond with an HTTP 301 redirect when queried at `/device.xml`, Windows will trust completely the full URL provided in a new `LOCATION` header.
+However, if that remote host were to respond with an HTTP 301 redirect when queried at `/device.xml`, Windows will trust the full URL provided in a new `LOCATION` header.
 
 This can be demonstrated as follows:
 - Connect the attacking box, running Linux, to the same LAN subnet as a Windows machine.
-- On the Windows machine, 
 - On the Windows machine, run some listener to verify SSRF, like ncat as follows:
 
 ```
@@ -75,12 +76,12 @@ ncat.exe -nlvp 4444
 python3 switcheroo.py -i eth0 -u http://localhost:4444/ssrf_pwn -t "*"
 ```
 
-- SSDP Disovery happens on a regular basis in Winows. So you can simply wait, or do the following to speed things up:
-  - Opening Windows Explorer
+- SSDP Disovery happens on a regular basis in Winows. So you can simply wait, or do the following on the Windows target to speed things up:
+  - Open Windows Explorer
   - Select "Network" from the left
   - Click the refresh button in the address bar
 
-From here, you will see the Windows machine connect to itself on localhost, which should be protected. This attack can be customized with switcheroo.py by providing a SSRF URL targeted at any application.
+From here, you will see the Windows machine connect to itself on localhost, which should be protected. This attack can be customized with switcheroo.py by providing an SSRF URL targeted at any application.
 
 ![screenshot](screenshot.png)
 
