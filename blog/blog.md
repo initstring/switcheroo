@@ -13,7 +13,7 @@ This is done by responding to SSDP multicast discovery requests, which Windows s
 
 While this write-up is specific to the vulnerable SSDP service in Windows, it is likely that many other applications using their own SSDP stack are vulnerable as well.
 
-Exploit POC code is available in the GitLab repository [here](https://gitlab.com/initstring/swicheroo).
+Exploit POC code is available in the GitLab repository [here](https://gitlab.com/initstring/switcheroo).
 
 ## Vulnerable Windows OS Versions
 The exploit POC was tested on the following versions of Windows, all of which were vulnerable:
