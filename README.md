@@ -3,7 +3,7 @@
 ## Overview
 Switcheroo is a POC demonstrating a universal SSRF strategy for LAN-based attacks against vulnerable SSDP services. One such service happens to be included in default installations of Microsoft Windows.
 
-You can read the full details in my blog [here](https://initblog.com/xxx).
+You can read the full details in my blog [here](https://initblog.com/2019/switcheroo).
 
 ![flowchart](ssrf-diagram.jpg)
 
